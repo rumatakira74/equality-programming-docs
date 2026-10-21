@@ -4,7 +4,8 @@
 
 ## Транзакции и реестр
 
-- Типы ядра: `register`, `vouch`, `mint`, `transfer`, `migrate`, `evidence`, `guardian_offer`; модульные: `pool_*`, `redeem`/`receipt`, `contribution_*`.
+- Типы ядра: `register`, `vouch`, `mint`, `transfer`, `migrate`, `evidence`, `guardian_offer`, `update_guardians`; модульные: `pool_*`, `redeem`/`receipt`, `contribution_*`.
+- `update_guardians` — перевыбор личных гардианов (≤ 3) с их согласия (подпись хеша смены, вручную — как approve миграции); окно вступления 48 ч, отмена PIN-only; лимит 15 вступивших в силу смен на кошелёк (спека, раздел 11).
 - У каждого кошелька **своя цепочка**: `{wallet, seq (+1), prev, type, payload, timestamp_claim, подпись}`. Двойная трата = два подписанных продолжения одного звена — тривиально доказывается.
 - Баланс = сумма валидной истории; каждый узел пересчитывает сам.
 - Заявленный timestamp допускается при расхождении с сетевым временем не более ±30 мин.
