@@ -47,7 +47,7 @@ Go-ядро: core · cons · net · mobile · sim · cmd
 - **Каноничность:** строгий DER + low-s во **всех** путях подписи (этап 9: мalleабельность ECDSA — TxID включает подпись — давала ложные конфликты; исправлено, регресс-тесты есть).
 - **Аттестация:** разбор KeyMint/Keymaster через `encoding/asn1`, проверка цепочки локально каждым узлом по корневым сертификатам Google, зашитым в APK. Проверяются hardware level, `verifiedBootState=Verified`, `deviceLocked`, уровень патча. Play Integrity и серверы Google не используются.
 - **PoW:** лёгкий SHA-256 (таргет 2^24, ~1–4 с) на `transfer`; memory-hard Argon2id 32 МиБ (таргет 2^56, ~10–20 с) на `register` и выпуск.
-- `walletFingerprint = SHA256(attestedPublicKey ‖ protocolId)`; один фингерпринт — один адрес.
+- `walletFingerprint = SHA256(attestedPublicKey ‖ protocolId)`; адрес = `SHA-256(fingerprint ‖ network_id)` — единая точка деривации от финального `network_id` (мини-этап 12.2). В манифесте и genesis адреса не хранятся: посевной круг и поставщики заданы публичными ключами (fingerprint'ами); дубликаты и пустые ключи отвергаются при сборке сети.
 
 ## Безопасность UI (правила этапа 9, спека 8.2)
 
