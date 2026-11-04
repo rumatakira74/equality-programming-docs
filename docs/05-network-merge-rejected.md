@@ -9,7 +9,7 @@
 ## Проработка и проверка
 
 - Дизайн: `docs/network-merge-design.md` (основной репозиторий, ревизия `2a42908`) — слияние как запуск новой сети C с merge-genesis: ратификация signal-транзакциями в обеих сетях, снапшот по финализированным чекпоинтам, halt-правило, импорт идентичности и состояния, 6 открытых решений, 10 вопросов аудиту.
-- Аудит: независимый внешний аудит дизайна — [`audit/results/AUDIT-network-merge.md`](https://github.com/rumatakira74/equality-trust-networks/blob/audit/audit/results/AUDIT-network-merge.md) (ветка [`audit`](https://github.com/rumatakira74/equality-trust-networks/tree/audit) репозитория [equality-trust-networks](https://github.com/rumatakira74/equality-trust-networks)). Вердикт: **«Переработать»** — 4 находки CRITICAL, 9 HIGH, 7 MEDIUM; из 10 проектных вопросов аудита 5 получили ответ «проблема», 1 — «неоднозначно».
+- Аудит: независимый внешний аудит дизайна — `audit/results/AUDIT-network-merge.md` (выполнялся в отдельной ветке репозитория [equality-trust-networks](https://github.com/rumatakira74/equality-trust-networks), удалённой после закрытия темы). Вердикт: **«Переработать»** — 4 находки CRITICAL, 9 HIGH, 7 MEDIUM; из 10 проектных вопросов аудита 5 получили ответ «проблема», 1 — «неоднозначно».
 - Решение: вместо переработки владелец закрыл тему — сложность и риск не оправдывают редкий сценарий.
 
 ## Почему безопасное слияние не получается (ключевые находки аудита)
