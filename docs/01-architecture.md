@@ -22,7 +22,7 @@ Go-ядро: core · cons · net · mobile · sim · cmd
 - **Весь cgo — off-main.** Блокирующий `startNode` на главном потоке давал ANR (bootstrap до ~11 с) — релиз-блокер, исправлен: `onStartCommand` уходит в фон, готовность приходит колбэком. Все вызовы моста проверяются на блокировку UI.
 - Мост Kotlin потокобезопасен: `mainHandler` / `executor` / `ConcurrentHashMap` (аудит этапа 9 — находок нет).
 - Read-слой UI к реестру — `net/query.go` (геттеры под `sync.RWMutex`; `Apply` держит Lock). Прямые чтения внутренних структур ядра из UI запрещены (data race — этап 7, авторизованное исключение).
-- UI **не дублирует** формулы протокола: экран выпуска берёт `claim_period`/`claim_amount` у узла, окно челленджа — через `CheckMintChallengeWindow` (да/нет). Точная логика — в Go.
+- UI **не дублирует** формулы протокола: экран выпуска берёт `claim_period`/`claim_amount` и окно челленджа у узла через мост (`MintWindowJSON` — `open`, `window_opens_at/closes_at`, `submit_at`). Точная логика — в Go (`CheckMintChallengeWindow`/`MintWindowBounds`).
 
 ## Хранение
 
@@ -46,7 +46,7 @@ Go-ядро: core · cons · net · mobile · sim · cmd
 - **Подписи кошелька:** ECDSA P-256 (Keystore надёжно поддерживает; Ed25519 — не везде). Подтверждено на целевых устройствах.
 - **Каноничность:** строгий DER + low-s во **всех** путях подписи (этап 9: мalleабельность ECDSA — TxID включает подпись — давала ложные конфликты; исправлено, регресс-тесты есть).
 - **Аттестация:** разбор KeyMint/Keymaster через `encoding/asn1`, проверка цепочки локально каждым узлом по корневым сертификатам Google, зашитым в APK. Проверяются hardware level, `verifiedBootState=Verified`, `deviceLocked`, уровень патча. Play Integrity и серверы Google не используются.
-- **PoW:** лёгкий SHA-256 (таргет 2^24, ~1–4 с) на `transfer`; memory-hard Argon2id 32 МиБ (таргет 2^56, ~10–20 с) на `register` и выпуск.
+- **PoW:** лёгкий SHA-256 (таргет 2^40 ≈ 2^24 итераций хеширования, ~1–4 с) на `transfer`; memory-hard Argon2id 32 МиБ (таргет 2^56 ≈ 256 итераций, ~10–20 с) на `register` и выпуск (правка A4 аудита: таргет ≠ число итераций).
 - `walletFingerprint = SHA256(attestedPublicKey ‖ protocolId)`; адрес = `SHA-256(fingerprint ‖ network_id)` — единая точка деривации от финального `network_id` (мини-этап 12.2). В манифесте и genesis адреса не хранятся: посевной круг и поставщики заданы публичными ключами (fingerprint'ами); дубликаты и пустые ключи отвергаются при сборке сети.
 
 ## Безопасность UI (правила этапа 9, спека 8.2)

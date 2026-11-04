@@ -20,23 +20,25 @@ go build -o bin/tnp-node    ./cmd/tnp-node
 Конфигуратор — режим `configure` утилиты `tnp-testnet` (раздел 5 спецификации):
 
 ```sh
-# список шаблонов профилей (1..7)
+# список шаблонов профилей (1..8; №8 subscriber-resource — recurring)
 ./bin/tnp-testnet configure -list
 
-# сеть по шаблону профиля
+# сеть по шаблону профиля (-slug обязателен; -genesis-time — unix-секунды,
+# 0 = сейчас; полный список флагов печатает -list/флаг без значения)
 ./bin/tnp-testnet configure -template 1 \
+  -slug my-network \
   -network-id my-network \
   -seeds alice,bob,carol \
-  -genesis-time 2026-11-04T12:00:00Z \
+  -genesis-time 1762257600 \
   -display-name "Моя сеть" \
   -out net/
 ```
 
-Параметры: `-seeds` (метки посевного круга), `-genesis-time`, `-issuance-amount` (выпуск за период), `-vouch-k` (поручительства на вход), `-epoch-seconds` (период; продакшен — 24 ч, тесты ускоряются), `-resource-id` (для recurring-профиля №8), `-display-name`, `-invite-key-hex` (ключ приглашения invite_only).
+Параметры: `-slug` (обязателен для не-глобальной сети), `-network-id` (метка для детерминизма ключа приглашения; по умолчанию — slug), `-seeds` (метки посевного круга), `-genesis-time` (unix-секунды, 0 = сейчас), `-issuance-amount` (выпуск за период), `-vouch-k` (поручительства на вход), `-epoch-seconds` (период; продакшен — 24 ч, тесты ускоряются), `-resource-id` (для recurring-профиля №8), `-display-name`, `-global` (глобальная сеть), `-recurring`, `-providers`/`-provider-seed` (fingerprint'ы поставщиков), `-period-seconds`, `-transfer-moratorium-days`, `-mint-challenge-window-hours`, `-migrate-delay-days`, `-logo`, `-app-version`, `-invite-key-hex` (ключ приглашения invite_only), `-signing-dir` (каталог боевых ключей подписи APK).
 
-Выход в `-out`: `genesis.bin` (пакет: genesis-запись + манифест + подписанный seed-список), `manifest.json`, `invite.txt` (QR/ссылка для участников), таблица слотов челленджа посевного круга, конфигурация приложения и уровень гарантий из манифеста (3.3). Идентификация сети: `network_id = H(manifest ‖ genesis)`, slug, label `Eq-<hash8>`.
+Выход в `-out` (аудит z-ai: описано по факту configure.go): `genesis.bin` (пакет: манифест + genesis-запись; seed-списка внутри нет), `manifest.json`, `invite.txt` (plain text: genesis-пакет, manifest_hash, invite_key; QR/ссылку `tnp://invite?…` формирует только `generate`), `guarantees.json` (уровень гарантий из манифеста, 3.3), `android.json` (applicationId/label/имя APK: `Eq-<hash8>`, `io.equality.<slug>.x<hash8>`), каталог `icon/`. Таблицу слотов челленджа печатают режимы `generate` и `slots` — не configure. Идентификация сети: `network_id = H(manifest ‖ genesis)`, slug, label `Eq-<hash8>`.
 
-Базовый вариант без шаблона — режим `generate` (те же выходные артефакты, `-network-id`, `-seeds`, `-peer`, `-invite-key-hex`).
+Базовый вариант без шаблона — режим `generate`: пишет `genesis.bin, manifest.json, seedlist.bin, invite.txt` и печатает таблицу слотов (guarantees.json/android.json/icon не создаёт — это только configure). Флаги: `-network-id`, `-seeds`, `-peer`, `-invite-key-hex`, `-out`, `-genesis-time`, `-epoch-seconds`, `-small-pow`, `-argon2-mib`, `-fresh-window`, `-anchor-epoch-zero`.
 
 Важно: ключ приглашения хранится в genesis-записи и **не публикуется в манифесте** (spec/02 2.1). `genesis.bin` раздаётся узлам, `manifest.json` можно публиковать.
 
@@ -101,7 +103,7 @@ go build -o bin/tnp-node    ./cmd/tnp-node
   -seeds alice,bob,carol -base-port 4100 -bin ./bin/tnp-node
 ```
 
-На localhost: `-link-groups=false` у всех узлов и драйверов (все пиры в одной /24), `epoch_seconds` занижен. Ранбуки и прецеденты прогонов — `reports/TESTNET-RUNBOOK.md` и отчёты этапов 8/8.1 основного репозитория.
+На localhost: `-link-groups=false` у всех узлов и драйверов (все пиры в одной /24), `epoch_seconds` занижен. Ранбуки и прецеденты прогонов — `reports/stage8/TESTNET-RUNBOOK.md` и отчёты этапов 8/8.1 основного репозитория.
 
 ## Ограничения
 
